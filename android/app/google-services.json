@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "946519379253",
+    "project_id": "eftkdny",
+    "storage_bucket": "eftkdny.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:946519379253:android:dcc7227ddc4ac3fefcd07c",
+        "android_client_info": {
+          "package_name": "com.example.eftkdny"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlzwd6pYcHGLq8eEIPrJak541H66WLnTA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
