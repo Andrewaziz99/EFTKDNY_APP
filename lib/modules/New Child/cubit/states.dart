@@ -20,6 +20,16 @@ class getChildrenDataSuccessState extends addChildStates {}
 
 class getChildrenDataErrorState extends addChildStates {}
 
+class createNewChildLoadingState extends addChildStates {}
+
+class createNewChildSuccessState extends addChildStates {}
+
+class createNewChildErrorState extends addChildStates {
+  final String error;
+
+  createNewChildErrorState(this.error);
+}
+
 class PickImageLoadingState extends addChildStates {}
 
 class PickImageSuccessState extends addChildStates {}

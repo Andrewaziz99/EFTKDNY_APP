@@ -4,6 +4,7 @@ import 'package:eftkdny/modules/New%20Child/image_options.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:location_picker_flutter_map/location_picker_flutter_map.dart';
 import 'package:toastification/toastification.dart';
 import '../../models/Children/children_model.dart';
 import '../../shared/components/components.dart';
@@ -140,6 +141,33 @@ class AddScreen extends StatelessWidget {
                             controller: childAddressController,
                             type: TextInputType.text,
                             label: address,
+                            suffix: Icons.location_on,
+                            suffixPressed: () async {
+                              final location = await Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => Material(
+                                    child: FlutterLocationPicker(
+                                      initZoom: 11,
+                                      minZoomLevel: 0,
+                                      maxZoomLevel: 100,
+                                      trackMyPosition: true,
+                                      searchBarBackgroundColor: Colors.white,
+                                      selectedLocationButtonTextStyle: const TextStyle(fontSize: 18),
+                                      mapLanguage: 'en',
+                                      onError: (e) => print(e),
+                                      selectLocationButtonLeadingIcon: const Icon(Icons.check),
+                                      showContributorBadgeForOSM: true,
+                                      onPicked: (PickedData pickedData) {
+                                        Navigator.of(context).pop(pickedData);
+                                        childAddressController.text =
+                                            '${pickedData.address}';
+                                        print(pickedData.latLong);
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                             validate: (val) {
                               if (val!.isEmpty) {
                                 return addressValidation;
@@ -191,7 +219,13 @@ class AddScreen extends StatelessWidget {
                                 className: childClassNameController.text,
                                 phone: childPhoneNumberController.text,
                               );
-                              cubit.addNewChild(model);
+                              cubit.createNewChild(
+                                name: model.name!,
+                                phone: model.phone!,
+                                address: model.address!,
+                                className: model.className!,
+                                imagePath: model.image,
+                              );
                             }
                           },
                           text: add,
@@ -214,11 +248,11 @@ class AddScreen extends StatelessWidget {
             childImageController.text = imagePath;
           }
 
-          if (state is addChildLoadingState) {
-            showLoadingDialog(context);
+          if (state is addChildLoadingState || state is createNewChildLoadingState) {
+            showDialog(context: context, builder: (buildContext) => loadingDialog(context));
           }
 
-          if (state is addChildSuccessState) {
+          if (state is addChildSuccessState || state is createNewChildSuccessState) {
             Navigator.pop(context);
             Toastification().show(
               context: context,
@@ -228,8 +262,9 @@ class AddScreen extends StatelessWidget {
               title: Text(addSuccess),
               showIcon: true,
             );
+            cubit.getUserData();
           }
-          if (state is addChildErrorState) {
+          if (state is addChildErrorState || state is createNewChildErrorState) {
             Navigator.pop(context);
             Toastification().show(
               context: context,

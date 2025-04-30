@@ -61,14 +61,14 @@ void navigateAndFinish(context, widget) => Navigator.pushAndRemoveUntil(
 
 
 
-Widget myDivider() => Padding(
+Widget myDivider({color = Colors.amberAccent}) => Padding(
       padding: const EdgeInsetsDirectional.only(
         start: 20.0,
       ),
       child: Container(
         width: double.infinity,
         height: 1.0,
-        color: Colors.amberAccent,
+        color: color,
       ),
     );
 

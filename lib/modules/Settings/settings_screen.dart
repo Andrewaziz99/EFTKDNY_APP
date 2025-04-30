@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iconify_flutter/icons/uil.dart';
-
+import 'package:flutter/services.dart';
 import '../../shared/components/components.dart';
 import '../../shared/components/constants.dart';
 
@@ -54,7 +53,13 @@ class SettingsScreen extends StatelessWidget {
               buildSettingItem(
                   icon: Icons.contact_support_rounded,
                   text: contactUs,
-                function: (){}
+                function: (){
+                  showAdaptiveDialog(
+                      context: context,
+                      builder: (context) =>
+                      contactUs_Dialog(context)
+                  );
+                }
               ),
               SizedBox(height: 20.0,),
               buildSettingItem(
@@ -91,4 +96,48 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+Widget contactUs_Dialog(BuildContext context) {
+  return AlertDialog(
+    title: const Text(contactUs),
+    content: SizedBox(
+      width: MediaQuery.of(context).size.width * 0.8,
+      height: MediaQuery.of(context).size.width * 0.4,
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(contactUsEmail),
+            const SizedBox(height: 10.0,),
+            TextButton(
+                onPressed: () {
+              Clipboard.setData(ClipboardData(
+                text: myEmail,
+              ));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(emailCopied)),
+              );
+              },
+            child: Text(myEmail)),
+            SizedBox(height: 20.0,),
+            Text(contactUsPhone),
+            const SizedBox(height: 10.0,),
+            TextButton(
+                onPressed: () {
+                  call(myPhone);
+              },
+            child: Text(myPhone)),
+          ],
+        ),
+      ),
+    ),
+    actions: [
+      TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('حسنا'))
+    ],
+  );
 }

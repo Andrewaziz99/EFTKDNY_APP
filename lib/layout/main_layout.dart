@@ -16,42 +16,41 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (BuildContext context) => LayoutCubit(),
-      child: BlocConsumer<LayoutCubit, LayoutStates>(
-        builder: (BuildContext context, state) {
-          final cubit = LayoutCubit.get(context);
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text(
-                appName,
-                style: TextStyle(color: Colors.white),
-              ),
+    return BlocConsumer<LayoutCubit, LayoutStates>(
+      builder: (BuildContext context, state) {
+        final cubit = LayoutCubit.get(context);
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(
+              appName,
+              style: TextStyle(color: Colors.white),
             ),
-            backgroundColor: Colors.transparent,
-            body: cubit.screens[cubit.currentIndex],
-            bottomNavigationBar: SlidingClippedNavBar(
-              backgroundColor: Colors.white,
-              onButtonPressed: (index) {
-                cubit.changeBottomNav(index);
-              },
-              iconSize: 30,
-              activeColor: Colors.blue,
-              selectedIndex: cubit.currentIndex,
-              barItems: [
-                BarItem(title: cubit.titles[0],
-                    icon: cubit.icons[0],),
-                BarItem(title: cubit.titles[1],
-                    icon: cubit.icons[1],),
-                BarItem(title: cubit.titles[2],
-                    icon: cubit.icons[2],)
-                
-              ],
-            ),
-          );
-        },
-        listener: (BuildContext context, state) {  },
-      ),
+          ),
+          backgroundColor: Colors.transparent,
+          body: cubit.screens[cubit.currentIndex],
+          bottomNavigationBar: SlidingClippedNavBar(
+            backgroundColor: Colors.white,
+            onButtonPressed: (index) {
+              cubit.changeBottomNav(index);
+            },
+            iconSize: 30,
+            activeColor: Colors.blue,
+            selectedIndex: cubit.currentIndex,
+            barItems: [
+              BarItem(title: cubit.titles[0],
+                  icon: cubit.icons[0],),
+              BarItem(title: cubit.titles[1],
+                  icon: cubit.icons[1],),
+              BarItem(title: cubit.titles[2],
+                  icon: cubit.icons[2],),
+              BarItem(title: cubit.titles[3],
+                  icon: cubit.icons[3],)
+
+            ],
+          ),
+        );
+      },
+      listener: (BuildContext context, state) {  },
     );
   }
 }

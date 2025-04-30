@@ -207,10 +207,13 @@ class LoginScreen extends StatelessWidget {
           showDialog(context: context, builder: (buildContext) => loadingDialog(context));
         }
         if (state is AuthSuccessState) {
+          uId = state.uId;
           emailController.clear();
           passwordController.clear();
-          CacheHelper.saveData(key: 'uId', value: state.uId).then((value) {
-            navigateAndFinish(context, MainLayout());
+          CacheHelper.saveData(key: 'isLoggedIn', value: true).then((value) {
+            CacheHelper.saveData(key: 'uId', value: state.uId).then((value) {
+              navigateAndFinish(context, MainLayout());
+            });
           });
         }
         if (state is AuthErrorState) {

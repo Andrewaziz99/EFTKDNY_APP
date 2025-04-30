@@ -8,6 +8,7 @@ class ChildrenModel {
   String? className;
   String? image;
   String? lastVisit;
+  bool ? isSelected = false;
 
   ChildrenModel({
     this.childId,
@@ -19,6 +20,7 @@ class ChildrenModel {
     this.className,
     this.image,
     this.lastVisit,
+    this.isSelected,
   });
 
   ChildrenModel.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,7 @@ class ChildrenModel {
     className = json['className'];
     image = json['image'];
     lastVisit = json['lastVisit'];
+    isSelected = false;
   }
 
   Map<String, dynamic> toMap() {
@@ -46,4 +49,21 @@ class ChildrenModel {
       'lastVisit': lastVisit,
     };
   }
+
+  // Helper method to toggle selection
+  ChildrenModel copyWith({bool? isSelected}) {
+    return ChildrenModel(
+      childId: childId,
+      name: name,
+      birthDate: birthDate,
+      phone: phone,
+      AdditionalPhone: AdditionalPhone,
+      address: address,
+      className: className,
+      image: image,
+      lastVisit: lastVisit,
+      isSelected: isSelected ?? this.isSelected,
+    );
+  }
+
 }

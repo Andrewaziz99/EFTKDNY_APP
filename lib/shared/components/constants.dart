@@ -1,5 +1,5 @@
 import 'package:eftkdny/shared/network/local/cache_helper.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../../modules/Auth/login_screen.dart';
 import 'components.dart';
 
@@ -45,12 +45,15 @@ const String logout = 'تسجيل الخروج';
 const String reset = 'إعادة تعيين كلمة المرور';
 const String dontHaveAccount = 'ليس لديك حساب؟';
 const String send = 'إرسال';
-const String submit = 'إرسال';
+const String submit = 'تسجيل';
 const String update = 'تحديث';
 const String delete = 'حذف';
 const String add = 'إضافة';
 const String edit = 'تعديل';
 const String home = 'الرئيسية';
+const String attendance = 'الحضور';
+const String friday_attendance = ' حضور مدارس الأحد';
+const String hymns_attendance =  'حضور الاحان';
 const String settings = 'الاعدادات';
 const String profile = 'الملف الشخصي';
 const String about = 'حول';
@@ -60,6 +63,8 @@ const String cancel = 'إلغاء';
 const String yes = 'نعم';
 const String no = 'لا';
 const String ok = 'حسنا';
+const String done = 'تم';
+const String attendanceDone = 'تم تسجيل الحضور';
 
 // Messages
 const String error = 'خطأ';
@@ -124,3 +129,34 @@ const String welcome = 'مرحبا بك في إفتقدني';
 
 const String developer = 'تطوير: اندرو عزيز';
 const String aboutApp = 'إفتقدني هو تطبيق يهدف إلى تسهيل ومتابعة الإفتقاد والطفل';
+
+const String myEmail = 'andrewmichel2002@gmail.com';
+const String myPhone = '01285928101';
+
+const String emailCopied = 'تم نسخ البريد';
+
+const String contactUsMessage = 'تواصل معنا عبر البريد الالكتروني';
+const String contactUsEmail = 'تواصل معنا عبر البريد الالكتروني';
+const String contactUsPhone = 'تواصل معنا عبر الهاتف';
+
+
+const String noChildrenLeft = 'لم يتبق أطفال لتسجيل حضورهم';
+
+
+const String startVisit = 'بدء الزيارة';
+const String headLine1 = 'بيانات الإفتقاد:';
+
+
+
+Future<void> call(String phoneNumber) async {
+  final Uri launchUri = Uri(
+    scheme: 'tel',
+    path: phoneNumber,
+  );
+
+  if (await canLaunchUrl(launchUri)) {
+    await launchUrl(launchUri);
+  } else {
+    throw 'Could not launch phone call';
+  }
+}

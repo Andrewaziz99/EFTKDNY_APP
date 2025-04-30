@@ -4,7 +4,7 @@ import 'package:eftkdny/modules/New%20Child/add_screen.dart';
 import 'package:eftkdny/modules/Settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
+import '../../modules/Home/Attendance/attendance_screen.dart';
 import '../../shared/components/constants.dart';
 
 
@@ -17,12 +17,14 @@ class LayoutCubit extends Cubit<LayoutStates> {
   List<Widget> screens = [
     // Add your screen widgets here
     HomeScreen(),
+    AttendanceScreen(),
     AddScreen(),
     SettingsScreen(),
   ];
   List<String> titles = [
     // Add your titles here
     home,
+    attendance,
     add,
     settings,
   ];
@@ -30,6 +32,7 @@ class LayoutCubit extends Cubit<LayoutStates> {
   List<IconData> icons = [
     // Add your icons here
     Icons.home,
+    Icons.calendar_today,
     Icons.add,
     Icons.settings,
   ];
