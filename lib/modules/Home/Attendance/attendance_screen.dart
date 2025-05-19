@@ -43,8 +43,8 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             backgroundColor: Colors.transparent,
             body: TabBarView(
               children: [
-                buildAttendanceScreen(cubit, 'Friday'),
-                buildAttendanceScreen(cubit, 'Hymns'),
+                buildAttendanceScreen(cubit, 'Friday', friday_attendance),
+                buildAttendanceScreen(cubit, 'Hymns', hymns_attendance),
               ],
             ),
           );
@@ -95,7 +95,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   }
 }
 
-Widget buildAttendanceScreen(HomeCubit cubit, String attendanceType) {
+Widget buildAttendanceScreen(HomeCubit cubit, String attendanceType, String Title) {
   final childrenList = cubit.Children;
   return Stack(
     fit: StackFit.expand,
@@ -160,12 +160,13 @@ Widget buildAttendanceScreen(HomeCubit cubit, String attendanceType) {
               ),
             ),
             SizedBox(height: 30.0),
-            if (childrenList.isNotEmpty)
+            if (childrenList.isNotEmpty &&
+                cubit.selectedChildren.isNotEmpty)
               defaultButton(
                 function: () {
                   cubit.takeAttendance(cubit.selectedChildren, attendanceType);
                 },
-                text: submit,
+                text: '$submit $Title',
                 background: Colors.blue,
                 width: double.infinity,
                 radius: 10.0,

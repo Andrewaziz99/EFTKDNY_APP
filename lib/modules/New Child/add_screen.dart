@@ -22,10 +22,12 @@ class AddScreen extends StatelessWidget {
       TextEditingController();
   TextEditingController childClassNameController = TextEditingController();
 
-  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   var imagePath = '';
   bool isImageSelected = false;
+
+  AddScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +109,7 @@ class AddScreen extends StatelessWidget {
                               if (val!.isEmpty) {
                                 return nameValidation;
                               }
+                              return null;
                             }),
                         SizedBox(
                           height: 20.0,
@@ -133,6 +136,7 @@ class AddScreen extends StatelessWidget {
                               if (val!.isEmpty) {
                                 return birthdateValidation;
                               }
+                              return null;
                             }),
                         SizedBox(
                           height: 20.0,
@@ -160,7 +164,7 @@ class AddScreen extends StatelessWidget {
                                       onPicked: (PickedData pickedData) {
                                         Navigator.of(context).pop(pickedData);
                                         childAddressController.text =
-                                            '${pickedData.address}';
+                                            pickedData.address;
                                         print(pickedData.latLong);
                                       },
                                     ),
@@ -172,6 +176,7 @@ class AddScreen extends StatelessWidget {
                               if (val!.isEmpty) {
                                 return addressValidation;
                               }
+                              return null;
                             }),
                         SizedBox(
                           height: 20.0,
@@ -186,6 +191,7 @@ class AddScreen extends StatelessWidget {
                               } else if (val.length < 11) {
                                 return phoneValidation;
                               }
+                              return null;
                             }),
                         SizedBox(
                           height: 20.0,
@@ -221,6 +227,7 @@ class AddScreen extends StatelessWidget {
                               );
                               cubit.createNewChild(
                                 name: model.name!,
+                                birthDate: model.birthDate!,
                                 phone: model.phone!,
                                 address: model.address!,
                                 className: model.className!,

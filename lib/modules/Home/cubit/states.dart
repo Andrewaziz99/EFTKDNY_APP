@@ -35,3 +35,33 @@ class getAttendanceErrorState extends HomeStates {
 
   getAttendanceErrorState(this.error);
 }
+
+class getAnswersLoadingState extends HomeStates {}
+
+class getAnswersSuccessState extends HomeStates {}
+
+class getAnswersErrorState extends HomeStates {
+  final String error;
+
+  getAnswersErrorState(this.error);
+}
+
+class PickImageLoadingState extends HomeStates {}
+
+class PickImageSuccessState extends HomeStates {}
+
+class PickImageErrorState extends HomeStates {
+  final String error;
+
+  PickImageErrorState(this.error);
+}
+
+class updateChildDataLoadingState extends HomeStates {}
+
+class updateChildDataSuccessState extends HomeStates {}
+
+class updateChildDataErrorState extends HomeStates {
+  final String error;
+
+  updateChildDataErrorState(this.error);
+}

@@ -1,6 +1,7 @@
 import 'package:blurrycontainer/blurrycontainer.dart';
+import 'package:eftkdny/modules/Home/Update/update_screen.dart';
+import 'package:eftkdny/shared/components/components.dart';
 import 'package:flutter/material.dart';
-import 'package:location_picker_flutter_map/location_picker_flutter_map.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../shared/components/constants.dart';
 
@@ -42,7 +43,7 @@ Widget childDialog(context, data) => AlertDialog(
                 ),
                 //Birth Date
                 Text(
-                  data.birthDate ?? '$noData',
+                  data.birthDate ?? noData,
                   style: TextStyle(color: Colors.white, fontSize: 18.0),
                 ),
                 SizedBox(
@@ -123,7 +124,7 @@ Widget childDialog(context, data) => AlertDialog(
         ),
       ),
       actions: [
-        TextButton(onPressed: (){}, child: Text(update, style: TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),)),
+        TextButton(onPressed: (){navigateTo(context, UpdateScreen(child: data));}, child: Text(update, style: TextStyle(color: Colors.blue, fontSize: 16.0, fontWeight: FontWeight.bold),)),
         TextButton(onPressed: (){Navigator.pop(context);}, child: Text(exit, style: TextStyle(color: Colors.black, fontSize: 16.0, fontWeight: FontWeight.bold),)),
       ],
     );

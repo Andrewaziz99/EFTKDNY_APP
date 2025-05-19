@@ -88,6 +88,7 @@ class addChildCubit extends Cubit<addChildStates> {
 
   Future<void> createNewChild({
     required String name,
+    required String birthDate,
     required String phone,
     required String address,
     required String className,
@@ -109,9 +110,12 @@ class addChildCubit extends Cubit<addChildStates> {
         final TaskSnapshot storageSnapshot = await uploadTask;
         imageUrl = await storageSnapshot.ref.getDownloadURL();
       }
+      DocumentReference docRef = FirebaseFirestore.instance.collection('children').doc();
 
       ChildrenModel model = ChildrenModel(
+        childId: docRef.id,
         name: name,
+        birthDate: birthDate,
         phone: phone,
         address: address,
         className: className,
@@ -120,34 +124,13 @@ class addChildCubit extends Cubit<addChildStates> {
       // Save the user data to Firestore
       await FirebaseFirestore.instance
           .collection('children')
-          .doc(uId)
+          .doc(docRef.id)
           .set(model.toMap());
       emit(createNewChildSuccessState());
     } catch (error) {
       emit(createNewChildErrorState(error.toString()));
     }
 
-  }
-
-
-  void addNewChild({
-    required String name,
-    required String phone,
-    required String address,
-    required String className,
-    required imagePath,
-  }) {
-    emit(addChildLoadingState());
-    createNewChild(
-        name: name,
-        phone: phone,
-        address: address,
-        className: className
-    ).then((value) {
-      emit(addChildSuccessState());
-    }).catchError((error) {
-      emit(addChildErrorState());
-    });
   }
 
 }

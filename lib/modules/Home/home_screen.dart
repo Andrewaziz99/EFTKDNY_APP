@@ -1,11 +1,16 @@
+import 'dart:math';
+
+import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:eftkdny/models/Children/children_model.dart';
+import 'package:eftkdny/modules/Home/Answers/answers_screen.dart';
 import 'package:eftkdny/modules/Home/cubit/states.dart';
 import 'package:eftkdny/shared/components/components.dart';
 import 'package:eftkdny/shared/components/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import '../Questions/question_screen.dart';
 import 'child_dialog_page.dart';
 import 'cubit/cubit.dart';
@@ -26,6 +31,8 @@ class HomeScreen extends StatelessWidget {
           backgroundColor: Colors.transparent,
           body: RefreshIndicator(
             onRefresh: () async {
+              childData = null;
+              childNameController.clear();
               cubit.childrenList!.clear();
               cubit.getUserData();
             },
@@ -45,6 +52,10 @@ class HomeScreen extends StatelessWidget {
                       builder: (BuildContext context) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          emailVerificationWarning(),
+                          SizedBox(
+                            height: 20.0,
+                          ),
                           CustomDropDownMenu(
                               showTitle: false,
                               controller: childNameController,
@@ -60,6 +71,7 @@ class HomeScreen extends StatelessWidget {
                                 cubit.changeChildData(value);
                                 childData = value;
                                 childNameController.text = childData!.name!;
+                                cubit.getAnswers(value.childId!);
                               }),
                           SizedBox(
                             height: 20.0,
@@ -109,7 +121,9 @@ class HomeScreen extends StatelessWidget {
                                 ),
                                 defaultButton(
                                     function: () {
-                                      navigateTo(context, QuestionScreen());
+                                      String childId = childData!.childId!;
+                                      navigateTo(context,
+                                          QuestionScreen(childId: childId));
                                     },
                                     text: startVisit,
                                     width: double.infinity,
@@ -124,7 +138,48 @@ class HomeScreen extends StatelessWidget {
                                   style: TextStyle(fontSize: 20.0),
                                 ),
                                 SizedBox(
-                                  height: 10.0,
+                                  height: 20.0,
+                                ),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.5,
+                                  child: ConditionalBuilder(
+                                    condition: cubit.answersList.isNotEmpty,
+                                    builder: (BuildContext context) {
+                                      return ListView.separated(
+                                        itemCount: cubit.answersList.length,
+                                        itemBuilder:
+                                            (BuildContext context, int index) {
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(
+                                                height: 10.0,
+                                              ),
+                                              historyItem(
+                                                  context, cubit, index),
+                                              SizedBox(
+                                                height: 10.0,
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                        separatorBuilder: (BuildContext context,
+                                                int index) =>
+                                            myDivider(color: Colors.black87),
+                                      );
+                                    },
+                                    fallback: (BuildContext context) => Center(
+                                      child: Text(
+                                        noData,
+                                        style: TextStyle(
+                                            fontSize: 20.0,
+                                            color: Colors.black87),
+                                      ),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
@@ -148,3 +203,39 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+Widget historyItem(Context, HomeCubit cubit, int index) => BlurryContainer(
+      color: Colors.white60,
+      child: ListTile(
+        onTap: () {
+          navigateTo(Context, AnswersScreen(answers: cubit.answersList[index]));
+        },
+        leading: Text('${index + 1}'),
+        title: Text(
+          DateFormat('EEEE, d MMMM yyyy', 'ar').format(
+            cubit.answersList[index].date!,
+          ),
+          style: TextStyle(color: Colors.black, fontSize: 18.0),
+        ),
+        trailing: Transform.rotate(
+            angle: pi, child: Icon(Icons.arrow_back_ios_rounded)),
+      ),
+    );
+
+Widget emailVerificationWarning() => Container(
+  color: Colors.amber.shade100,
+  width: double.infinity,
+  height: 50.0,
+  child: ListTile(
+    onTap: (){
+      
+    },
+    leading: Icon(Icons.email_outlined),
+    title: Text(
+      emailVerification,
+      style: TextStyle(color: Colors.black, fontSize: 18.0),
+    ),
+    trailing: Transform.rotate(
+        angle: pi, child: Icon(Icons.arrow_back_ios_rounded)),
+  ),
+);

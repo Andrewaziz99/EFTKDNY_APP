@@ -1,7 +1,6 @@
 import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:eftkdny/layout/main_layout.dart';
 import 'package:eftkdny/modules/Auth/register_screen.dart';
-import 'package:eftkdny/modules/Home/home_screen.dart';
 import 'package:eftkdny/shared/components/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

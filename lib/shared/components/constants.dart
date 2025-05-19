@@ -65,6 +65,8 @@ const String no = 'لا';
 const String ok = 'حسنا';
 const String done = 'تم';
 const String attendanceDone = 'تم تسجيل الحضور';
+const String next = 'التالي';
+const String finish = 'إنهاء';
 
 // Messages
 const String error = 'خطأ';
@@ -111,6 +113,7 @@ const String selectImageValidation = 'الرجاء اختيار صورة';
 
 const String childData = 'بيانات الطفل';
 
+const String emailVerification = 'التحقق من البريد الإلكتروني';
 
 const String loginSuccess = 'تم تسجيل الدخول بنجاح';
 const String loginError = 'خطأ في تسجيل الدخول';
@@ -147,6 +150,20 @@ const String startVisit = 'بدء الزيارة';
 const String headLine1 = 'بيانات الإفتقاد:';
 
 
+const String date = 'التاريخ';
+
+const String q1 = 'اخر مرة اتناولت فيها ؟';
+const String q2 = 'اخر مرة صليت؟';
+const String q3 = 'اخر مرة قرأت فيها الانجيل؟';
+const String q4 = 'اخر مرة اعترفت؟';
+
+
+List<String> questions = [
+  q3,
+  q2,
+  q1,
+  q4,
+];
 
 Future<void> call(String phoneNumber) async {
   final Uri launchUri = Uri(
