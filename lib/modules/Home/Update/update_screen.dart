@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:location_picker_flutter_map/location_picker_flutter_map.dart';
+import 'package:toastification/toastification.dart';
 
 import '../../../shared/components/components.dart';
 import '../../../shared/components/constants.dart';
@@ -278,7 +279,35 @@ class UpdateScreen extends StatelessWidget {
           ),
         );
       },
-      listener: (BuildContext context, state) {  },
+      listener: (BuildContext context, state) {
+        if (state is updateChildDataLoadingState) {
+          showLoadingDialog(context);
+        }
+
+        if (state is updateChildDataSuccessState) {
+          Navigator.pop(context);
+          Toastification().show(
+            context: context,
+            backgroundColor: Colors.green,
+            type: ToastificationType.success,
+            autoCloseDuration: Duration(seconds: 2),
+            title: Text(updateSuccess),
+            showIcon: true,
+          );
+        }
+
+        if (state is updateChildDataErrorState) {
+          Navigator.pop(context);
+          Toastification().show(
+            context: context,
+            backgroundColor: Colors.red,
+            type: ToastificationType.error,
+            autoCloseDuration: Duration(seconds: 2),
+            title: Text(updateError),
+            showIcon: true,
+          );
+        }
+      },
     );
   }
 }

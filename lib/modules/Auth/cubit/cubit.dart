@@ -140,6 +140,8 @@ class AuthCubit extends Cubit<AuthStates> {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: password)
         .then((value) {
+      // Send verification email
+      value.user?.sendEmailVerification();
       String userId = value.user!.uid;
       createUser(
               uId: value.user!.uid,

@@ -8,6 +8,7 @@ import 'package:eftkdny/modules/Home/Answers/answers_screen.dart';
 import 'package:eftkdny/modules/Home/cubit/states.dart';
 import 'package:eftkdny/shared/components/components.dart';
 import 'package:eftkdny/shared/components/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -227,8 +228,11 @@ Widget emailVerificationWarning() => Container(
   width: double.infinity,
   height: 50.0,
   child: ListTile(
-    onTap: (){
-      
+    onTap: () async {
+User? user = FirebaseAuth.instance.currentUser;
+if (user != null && !user.emailVerified) {
+  await user.sendEmailVerification();
+}
     },
     leading: Icon(Icons.email_outlined),
     title: Text(
