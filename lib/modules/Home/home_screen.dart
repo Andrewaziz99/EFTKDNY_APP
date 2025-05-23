@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:toastification/toastification.dart';
 import '../Questions/question_screen.dart';
 import 'child_dialog_page.dart';
 import 'cubit/cubit.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends StatelessWidget {
   TextEditingController childNameController = TextEditingController();
 
   ChildrenModel? childData;
+  User? user = FirebaseAuth.instance.currentUser;
 
   HomeScreen({super.key});
 
@@ -36,6 +38,7 @@ class HomeScreen extends StatelessWidget {
               childNameController.clear();
               cubit.childrenList!.clear();
               cubit.getUserData();
+              print(user!.emailVerified);
             },
             child: Stack(
               fit: StackFit.expand,
@@ -53,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                       builder: (BuildContext context) => Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          emailVerificationWarning(),
+                          if (!user!.emailVerified) emailVerificationWarning(context),
                           SizedBox(
                             height: 20.0,
                           ),
@@ -223,23 +226,33 @@ Widget historyItem(Context, HomeCubit cubit, int index) => BlurryContainer(
       ),
     );
 
-Widget emailVerificationWarning() => Container(
-  color: Colors.amber.shade100,
-  width: double.infinity,
-  height: 50.0,
-  child: ListTile(
-    onTap: () async {
-User? user = FirebaseAuth.instance.currentUser;
-if (user != null && !user.emailVerified) {
-  await user.sendEmailVerification();
-}
-    },
-    leading: Icon(Icons.email_outlined),
-    title: Text(
-      emailVerification,
-      style: TextStyle(color: Colors.black, fontSize: 18.0),
-    ),
-    trailing: Transform.rotate(
-        angle: pi, child: Icon(Icons.arrow_back_ios_rounded)),
-  ),
-);
+Widget emailVerificationWarning(context) => Container(
+      color: Colors.amber.shade100,
+      width: double.infinity,
+      height: 50.0,
+      child: ListTile(
+        onTap: () async {
+          User? user = FirebaseAuth.instance.currentUser;
+          if (user != null && !user.emailVerified) {
+            await user.sendEmailVerification();
+            Toastification().show(
+              autoCloseDuration: Duration(seconds: 2),
+              context: context,
+              backgroundColor: Colors.amber,
+              icon: Icon(Icons.warning_amber, color: Colors.black,),
+              description: Text('Email sent'),
+              alignment: Alignment.bottomCenter,
+              animationDuration: Duration(seconds: 2),
+              dragToClose: true
+            );
+          }
+        },
+        leading: Icon(Icons.email_outlined),
+        title: Text(
+          emailVerification,
+          style: TextStyle(color: Colors.black, fontSize: 18.0),
+        ),
+        trailing: Transform.rotate(
+            angle: pi, child: Icon(Icons.arrow_back_ios_rounded)),
+      ),
+    );
