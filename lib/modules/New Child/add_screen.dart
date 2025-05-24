@@ -44,7 +44,7 @@ class AddScreen extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/pattern.png',
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
                 SingleChildScrollView(
                     child: Padding(

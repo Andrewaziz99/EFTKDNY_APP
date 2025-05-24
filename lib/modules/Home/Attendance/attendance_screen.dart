@@ -102,7 +102,7 @@ Widget buildAttendanceScreen(HomeCubit cubit, String attendanceType, String Titl
     children: [
       Image.asset(
         'assets/images/pattern.png',
-        fit: BoxFit.fill,
+        fit: BoxFit.cover,
       ),
       Padding(
         padding: const EdgeInsets.all(20.0),

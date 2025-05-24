@@ -55,7 +55,7 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Image.asset(
                   'assets/images/pattern.png',
-                  fit: BoxFit.fill,
+                  fit: BoxFit.cover,
                 ),
                 StreamBuilder<bool>(
                   stream: emailVerifiedStream,
@@ -257,7 +257,7 @@ Widget emailVerificationWarning(context) => Container(
               icon: Icon(Icons.warning_amber, color: Colors.black,),
               description: Text('تم إرسال البريد الإلكتروني\nيرجى التحقق من بريدك الوارد وتسجيل الدخول مرة أخرى'),
               alignment: Alignment.bottomCenter,
-              animationDuration: Duration(seconds: 2),
+              animationDuration: Duration(seconds: 5),
               dragToClose: true
             );
           }

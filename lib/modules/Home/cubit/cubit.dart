@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:eftkdny/models/Answers/answers_model.dart';
 import 'package:eftkdny/modules/Home/cubit/states.dart';
@@ -15,6 +14,25 @@ class HomeCubit extends Cubit<HomeStates> {
   HomeCubit() : super(HomeInitialState());
 
   static HomeCubit get(context) => BlocProvider.of(context);
+
+  List<String> classNames = [];
+
+  void getClassNames() {
+    emit(getClassNamesLoadingState());
+    FirebaseFirestore.instance.collection('className').get().then((value) {
+      classNames.clear();
+      classItems.clear();
+      for (var element in value.docs) {
+        classNames.add(element['name']);
+        classItems.add(element['name']);
+      }
+      print(classItems);
+      print(classNames);
+      emit(getClassNamesSuccessState());
+    }).catchError((error) {
+      emit(getClassNamesErrorState(error));
+    });
+  }
 
   void changeChildData(ChildrenModel model) {
     childrenModel = model;
@@ -84,7 +102,7 @@ class HomeCubit extends Cubit<HomeStates> {
         .collection('attendance')
         .where('type', isEqualTo: attendanceType)
         .where('attended', isEqualTo: true)
-    .where('date',
+        .where('date',
             isEqualTo: DateFormat('yyyy/MM/dd').format(DateTime.now()))
         .snapshots()
         .listen((value) {
@@ -96,28 +114,30 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
-
   void takeAttendance(selectedChildren, String attendanceType) {
     emit(takeAttendanceLoadingState());
     selectedChildren =
         selectedChildren.where((child) => child.isSelected == true).toList();
     if (selectedChildren.isNotEmpty) {
       for (var element in selectedChildren) {
-        FirebaseFirestore.instance.collection('attendance').doc().set({
-          'name': element.name,
-          'image': element.image,
-          'className': element.className,
-          'attended': element.isSelected,
-          'type': attendanceType,
-          'date': DateFormat('yyyy/MM/dd').format(DateTime.now()),
-          'metadata': {
-            'recordedBy': uId, // Add your user ID if available
-          }
-        }).then((value) {
-
-        }).catchError((error) {
-          emit(takeAttendanceErrorState());
-        });
+        FirebaseFirestore.instance
+            .collection('attendance')
+            .doc()
+            .set({
+              'name': element.name,
+              'image': element.image,
+              'className': element.className,
+              'attended': element.isSelected,
+              'type': attendanceType,
+              'date': DateFormat('yyyy/MM/dd').format(DateTime.now()),
+              'metadata': {
+                'recordedBy': uId, // Add your user ID if available
+              }
+            })
+            .then((value) {})
+            .catchError((error) {
+              emit(takeAttendanceErrorState());
+            });
       }
       emit(takeAttendanceSuccessState());
     } else {
@@ -151,7 +171,7 @@ class HomeCubit extends Cubit<HomeStates> {
     emit(PickImageLoadingState());
     // Implement image picking logic here
     final imageFile =
-    await ImagePicker().pickImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
       image = imageFile.path;
       print(image);
@@ -162,12 +182,10 @@ class HomeCubit extends Cubit<HomeStates> {
     }
   }
 
-
   Future<void> captureImage() async {
     emit(PickImageLoadingState());
     // Implement image picking logic here
-    final imageFile =
-    await ImagePicker().pickImage(source: ImageSource.camera);
+    final imageFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (imageFile != null) {
       image = imageFile.path;
       print(image);
@@ -179,6 +197,7 @@ class HomeCubit extends Cubit<HomeStates> {
   }
 
   String? imageUrl;
+
   Future<void> updateChildData({
     required String childId,
     required String name,
@@ -191,16 +210,13 @@ class HomeCubit extends Cubit<HomeStates> {
     emit(updateChildDataLoadingState());
 
     try {
-      DocumentReference docRef = FirebaseFirestore.instance.collection('children').doc(childId);
-
-
+      DocumentReference docRef =
+          FirebaseFirestore.instance.collection('children').doc(childId);
 
       // Check if a new image is provided
       if (imagePath != null && imagePath.isNotEmpty) {
-        final Reference storageReference = FirebaseStorage.instance
-            .ref()
-            .child('children')
-            .child('$name.jpg');
+        final Reference storageReference =
+            FirebaseStorage.instance.ref().child('children').child('$name.jpg');
 
         final UploadTask uploadTask = storageReference.putFile(File(imagePath));
         final TaskSnapshot storageSnapshot = await uploadTask;
@@ -215,7 +231,8 @@ class HomeCubit extends Cubit<HomeStates> {
         phone: phone,
         address: address,
         className: className,
-        image: imageUrl, // Will use new image URL or retain old one if imagePath is null
+        image:
+            imageUrl, // Will use new image URL or retain old one if imagePath is null
       );
 
       // Update the document in Firestore
@@ -227,6 +244,4 @@ class HomeCubit extends Cubit<HomeStates> {
       print(error);
     }
   }
-
-
 }

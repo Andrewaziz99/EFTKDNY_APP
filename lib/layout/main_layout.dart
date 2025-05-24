@@ -25,6 +25,16 @@ class _MainLayoutState extends State<MainLayout> {
               appName,
               style: TextStyle(color: Colors.white),
             ),
+            actions: [
+              // if(cubit.currentIndex == 2)
+              //   IconButton(
+              //     onPressed: () {
+              //       // cubit.getAnswers();
+              //     },
+              //     icon: const Icon(Icons.file_upload, color: Colors.white),
+              //     tooltip: uploadFile,
+              //   ),
+            ],
           ),
           backgroundColor: Colors.transparent,
           body: cubit.screens[cubit.currentIndex],

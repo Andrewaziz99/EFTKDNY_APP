@@ -58,7 +58,7 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider(create: (BuildContext context) => AuthCubit()),
         BlocProvider(create: (BuildContext context) => LayoutCubit()),
-        BlocProvider(create: (BuildContext context) => HomeCubit()..getUserData()),
+        BlocProvider(create: (BuildContext context) => HomeCubit()..getUserData()..getClassNames()),
       ],
       child: MaterialApp(
         localizationsDelegates: [

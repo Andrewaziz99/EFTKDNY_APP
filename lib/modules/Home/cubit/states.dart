@@ -8,6 +8,16 @@ class getUserDataSuccessState extends HomeStates {}
 
 class getUserDataErrorState extends HomeStates {}
 
+class getClassNamesLoadingState extends HomeStates {}
+
+class getClassNamesSuccessState extends HomeStates {}
+
+class getClassNamesErrorState extends HomeStates {
+  final String error;
+
+  getClassNamesErrorState(this.error);
+}
+
 class getChildrenDataLoadingState extends HomeStates {}
 
 class getChildrenDataSuccessState extends HomeStates {}

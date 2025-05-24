@@ -67,6 +67,9 @@ dependencies:
   pull_to_refresh: ^2.0.0
   path_provider: ^2.1.5
   url_launcher: ^6.3.1
+  mind_map: ^1.0.5
+  timeline_tile: ^2.0.0
+  csv: ^6.0.0
 
 dev_dependencies:
   flutter_test:
