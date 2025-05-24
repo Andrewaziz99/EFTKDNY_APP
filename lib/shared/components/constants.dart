@@ -26,11 +26,11 @@ String userYear = '';
 
 final List<String> classItems = [
   'اسرة ملائكة',
-  'اسرة1',
-  'اسرة القديس مارجرجس وابونا فلتاؤس',
-  'اسرة2',
+  'اسرة الانبا ونس',
+  'اسرة مارجرجس وابونا فلتاؤس',
+  'اسرة ابونا بيشوي كامل',
   'اسرة القديس ابانوب',
-  'اسرة الانبا انطونيوس',
+  'اسرة الانبا كاراس',
   'اسرة الانبا بولا',
 ];
 
@@ -67,7 +67,7 @@ const String done = 'تم';
 const String attendanceDone = 'تم تسجيل الحضور';
 const String next = 'التالي';
 const String finish = 'إنهاء';
-
+const String adminDashboard = 'لوحة التحكم';
 // Messages
 const String error = 'خطأ';
 const String success = 'نجاح';
@@ -110,6 +110,8 @@ const String birthdateValidation = 'تاريخ الميلاد مطلوب';
 const String selectClassValidation = 'الرجاء اختيار الأسرة';
 const String selectYearValidation = 'الرجاء اختيار السنة';
 const String selectImageValidation = 'الرجاء اختيار صورة';
+
+const String uploadFile = 'رفع الملف';
 
 const String childData = 'بيانات الطفل';
 
