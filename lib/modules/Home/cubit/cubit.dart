@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:eftkdny/models/Answers/answers_model.dart';
 import 'package:eftkdny/modules/Home/cubit/states.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import '../../../models/Children/children_model.dart';
@@ -114,13 +116,24 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
-  void takeAttendance(selectedChildren, String attendanceType) {
+  Future<void> takeAttendance(selectedChildren, String attendanceType) async {
     emit(takeAttendanceLoadingState());
     selectedChildren =
         selectedChildren.where((child) => child.isSelected == true).toList();
     if (selectedChildren.isNotEmpty) {
       for (var element in selectedChildren) {
-        FirebaseFirestore.instance
+        var connectivityResult = await Connectivity().checkConnectivity();
+        if (connectivityResult == ConnectivityResult.none) {
+          //Save locally if no internet connection
+          var box = await Hive.openBox('attendance');
+          await box.add({
+            'children': selectedChildren.map((e) => e.toMap()).toList(),
+            'type': attendanceType,
+            'date': DateFormat('yyyy/MM/dd').format(DateTime.now()),
+          });
+          emit(takeAttendanceSuccessState());
+        } else {
+          FirebaseFirestore.instance
             .collection('attendance')
             .doc()
             .set({
@@ -138,11 +151,46 @@ class HomeCubit extends Cubit<HomeStates> {
             .catchError((error) {
               emit(takeAttendanceErrorState());
             });
+        }
       }
       emit(takeAttendanceSuccessState());
     } else {
       emit(takeAttendanceErrorState());
     }
+  }
+
+  void listenForConnectivityAndSync(){
+    Connectivity().onConnectivityChanged.listen((result) async {
+      if (result != ConnectivityResult.none) {
+        var box = await Hive.openBox('attendance');
+        if (box.isNotEmpty) {
+          for (var item in box.values) {
+            var childrenData = item['children'] as List;
+            for (var childData in childrenData) {
+              await FirebaseFirestore.instance
+                  .collection('attendance')
+                  .doc()
+                  .set({
+                    'name': childData['name'],
+                    'image': childData['image'],
+                    'className': childData['className'],
+                    'attended': childData['isSelected'],
+                    'type': item['type'],
+                    'date': item['date'],
+                    'metadata': {
+                      'recordedBy': uId, // Add your user ID if available
+                    }
+                  })
+                  .catchError((error) {
+                    emit(takeAttendanceErrorState());
+                    print('Error syncing attendance: $error');
+                  });
+            }
+          }
+          await box.clear(); // Clear the local cache after syncing
+        }
+      }
+    });
   }
 
   List<AnswersModel> answersList = [];
@@ -244,4 +292,8 @@ class HomeCubit extends Cubit<HomeStates> {
       print(error);
     }
   }
+
+
+
+
 }

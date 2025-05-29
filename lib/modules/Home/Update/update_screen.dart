@@ -35,8 +35,8 @@ class UpdateScreen extends StatelessWidget {
       builder: (BuildContext context, state) {
 
         final cubit = HomeCubit.get(context);
-        cubit.image = child.image!;
-        imageUrl = child.image!;
+        cubit.image = child.image ?? '';
+        imageUrl = child.image ?? '';
         childNameController.text = child.name!;
         childBirthDateController.text = child.birthDate!;
         childAddressController.text = child.address!;
@@ -237,7 +237,7 @@ class UpdateScreen extends StatelessWidget {
                                 if (_formKey.currentState!.validate()) {
                                   final model = ChildrenModel(
                                     name: childNameController.text,
-                                    image: cubit.image,
+                                    image: imagePath,
                                     birthDate: childBirthDateController.text,
                                     address: childAddressController.text,
                                     className: childClassNameController.text,
@@ -280,6 +280,14 @@ class UpdateScreen extends StatelessWidget {
         );
       },
       listener: (BuildContext context, state) {
+
+        if (state is PickImageSuccessState) {
+          isImageSelected = true;
+          imagePath = HomeCubit.get(context).image;
+          print('Image selected: $imagePath');
+          Navigator.pop(context);
+        }
+
         if (state is updateChildDataLoadingState) {
           showLoadingDialog(context);
         }
@@ -294,6 +302,7 @@ class UpdateScreen extends StatelessWidget {
             title: Text(updateSuccess),
             showIcon: true,
           );
+          Navigator.pop(context);
         }
 
         if (state is updateChildDataErrorState) {
