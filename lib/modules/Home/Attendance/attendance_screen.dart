@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:eftkdny/modules/Home/cubit/cubit.dart';
 import 'package:eftkdny/modules/Home/cubit/states.dart';
 import 'package:eftkdny/shared/components/components.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:toastification/toastification.dart';
@@ -18,24 +19,31 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: BlocConsumer<HomeCubit, HomeStates>(
         builder: (BuildContext context, state) {
           final cubit = HomeCubit.get(context);
           return Scaffold(
             appBar: AppBar(
-              toolbarHeight: 2,
+              toolbarHeight: 2.0,
               bottom: TabBar(
                 physics: ClampingScrollPhysics(),
                 labelColor: Colors.white,
                 dividerColor: Colors.white,
                 indicatorColor: Colors.white,
+                automaticIndicatorColorAdjustment: true,
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+
                 tabs: [
                   Tab(
                     text: friday_attendance,
                   ),
                   Tab(
                     text: hymns_attendance,
+                  ),
+                  Tab(
+                    text: bible_attendance,
                   ),
                 ],
               ),
@@ -45,6 +53,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
               children: [
                 buildAttendanceScreen(cubit, 'Friday', friday_attendance),
                 buildAttendanceScreen(cubit, 'Hymns', hymns_attendance),
+                buildAttendanceScreen(cubit, 'Bible', bible_attendance),
               ],
             ),
           );
@@ -70,6 +79,7 @@ class _AttendanceScreenState extends State<AttendanceScreen> {
             Navigator.pop(context);
             cubit.getAttendance('Friday');
             cubit.getAttendance('Hymns');
+            cubit.getAttendance('Bible');
           }
 
           if (state is getAttendanceSuccessState) {
