@@ -46,6 +46,16 @@ class getAttendanceErrorState extends HomeStates {
   getAttendanceErrorState(this.error);
 }
 
+class getAttendanceByMonthLoadingState extends HomeStates {}
+
+class getAttendanceByMonthSuccessState extends HomeStates {}
+
+class getAttendanceByMonthErrorState extends HomeStates {
+  final String error;
+
+  getAttendanceByMonthErrorState(this.error);
+}
+
 class getAnswersLoadingState extends HomeStates {}
 
 class getAnswersSuccessState extends HomeStates {}
@@ -74,4 +84,34 @@ class updateChildDataErrorState extends HomeStates {
   final String error;
 
   updateChildDataErrorState(this.error);
+}
+
+class generateAttendancePdfLoadingState extends HomeStates {}
+
+class generateAttendancePdfSuccessState extends HomeStates {}
+
+class generateAttendancePdfErrorState extends HomeStates {
+  final String error;
+
+  generateAttendancePdfErrorState(this.error);
+}
+
+class uploadAndParseCsvLoadingState extends HomeStates {}
+
+class uploadAndParseCsvSuccessState extends HomeStates {}
+
+class uploadAndParseCsvErrorState extends HomeStates {
+  final String error;
+
+  uploadAndParseCsvErrorState(this.error);
+}
+
+class readCsvFileLoadingState extends HomeStates {}
+
+class readCsvFileSuccessState extends HomeStates {}
+
+class readCsvFileErrorState extends HomeStates {
+  final String error;
+
+  readCsvFileErrorState(this.error);
 }

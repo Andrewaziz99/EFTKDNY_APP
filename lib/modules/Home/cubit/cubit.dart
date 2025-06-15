@@ -8,6 +8,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive/hive.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:image/image.dart' as img;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:flutter/services.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:csv/csv.dart';
 import '../../../models/Children/children_model.dart';
 import '../../../models/User/user_model.dart';
 import '../../../shared/components/constants.dart';
@@ -116,6 +123,29 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
+  Future<void> getAttendanceByMonth(int month, String attendanceType) async {
+    emit(getAttendanceByMonthLoadingState());
+    selectedChildren.clear();
+    // Calculate the start and end dates for the selected month in the current year
+    final now = DateTime.now();
+    final start = DateTime(now.year, month, 1);
+    final end = DateTime(now.year, month + 1, 1).subtract(const Duration(days: 1));
+    FirebaseFirestore.instance
+        .collection('attendance')
+        .where('type', isEqualTo: attendanceType)
+        .where('attended', isEqualTo: true)
+        .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy/MM/dd').format(start))
+        .where('date', isLessThanOrEqualTo: DateFormat('yyyy/MM/dd').format(end))
+        .snapshots()
+        .listen((value) {
+      for (var element in value.docs) {
+        selectedChildren.add(ChildrenModel.fromJson(element.data()));
+        Children.removeWhere((child) => child.name == element['name']);
+      }
+      emit(getAttendanceByMonthSuccessState());
+    });
+  }
+
   Future<void> takeAttendance(selectedChildren, String attendanceType) async {
     emit(takeAttendanceLoadingState());
     selectedChildren =
@@ -217,13 +247,22 @@ class HomeCubit extends Cubit<HomeStates> {
 
   Future<void> pickImageFromGallery() async {
     emit(PickImageLoadingState());
-    // Implement image picking logic here
-    final imageFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
+    final imageFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (imageFile != null) {
-      image = imageFile.path;
-      print(image);
-      emit(PickImageSuccessState());
+      // Reduce image file size
+      final File originalFile = File(imageFile.path);
+      final bytes = await originalFile.readAsBytes();
+      final img.Image? decodedImage = img.decodeImage(bytes);
+      if (decodedImage != null) {
+        // Compress to 70% quality and resize if needed
+        final compressedBytes = img.encodeJpg(decodedImage, quality: 70);
+        final compressedFile = await originalFile.writeAsBytes(compressedBytes, flush: true);
+        image = compressedFile.path;
+        print(image);
+        emit(PickImageSuccessState());
+      } else {
+        emit(PickImageErrorState('Failed to decode image'));
+      }
     } else {
       emit(PickImageErrorState('No image selected'));
       return;
@@ -232,12 +271,21 @@ class HomeCubit extends Cubit<HomeStates> {
 
   Future<void> captureImage() async {
     emit(PickImageLoadingState());
-    // Implement image picking logic here
     final imageFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (imageFile != null) {
-      image = imageFile.path;
-      print(image);
-      emit(PickImageSuccessState());
+      // Reduce image file size
+      final File originalFile = File(imageFile.path);
+      final bytes = await originalFile.readAsBytes();
+      final img.Image? decodedImage = img.decodeImage(bytes);
+      if (decodedImage != null) {
+        final compressedBytes = img.encodeJpg(decodedImage, quality: 70);
+        final compressedFile = await originalFile.writeAsBytes(compressedBytes, flush: true);
+        image = compressedFile.path;
+        print(image);
+        emit(PickImageSuccessState());
+      } else {
+        emit(PickImageErrorState('Failed to decode image'));
+      }
     } else {
       emit(PickImageErrorState('No image selected'));
       return;
@@ -292,6 +340,216 @@ class HomeCubit extends Cubit<HomeStates> {
       print(error);
     }
   }
+
+  // Generates and previews a PDF of the attendance table
+  Future<void> generateAttendancePdf(context, String attendanceType, int month) async {
+    if (attendanceType == friday_attendance) {
+      await getAttendanceByMonth(month, 'Friday').then((value) async {
+        emit(generateAttendancePdfLoadingState());
+        final pdf = pw.Document();
+        // Load an Arabic font (Cairo is included in your assets)
+        final font = pw.Font.ttf(await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf'));
+        final List<ChildrenModel> data = [];
+        if (attendanceType == friday_attendance) {
+          data.addAll(selectedChildren);
+        } else if (attendanceType == hymns_attendance) {
+          data.addAll(Children.where((child) => child.isSelected == true).toList());
+        }
+        if (data.isEmpty) {
+          emit(generateAttendancePdfErrorState('لا يوجد بيانات للحضور'));
+          return;
+        }
+        pdf.addPage(
+          pw.Page(
+            textDirection: pw.TextDirection.rtl,
+            pageFormat: PdfPageFormat.a4,
+            build: (pw.Context context) => pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('تقرير  الحضور: $attendanceType', style: pw.TextStyle(font: font, fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 20.0),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    // For horizontal table, each column is a vertical list
+                    for (int col = 0; col < 3; col++)
+                      pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                          children: [
+                            // Header
+                            pw.Container(
+                              color: PdfColors.grey300,
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                ['الاسم', 'الأسرة', 'حضر'][col],
+                                style: pw.TextStyle(font: font, fontWeight: pw.FontWeight.bold),
+                                textAlign: pw.TextAlign.center,
+                              ),
+                            ),
+                            pw.SizedBox(height: 2),
+                            // Data
+                            ...data.map((child) {
+                              final row = [
+                                child.name ?? '',
+                                child.className ?? '',
+                                selectedChildren.any((selectedChild) => selectedChild.name == child.name) ? 'نعم' : 'لا',
+                              ];
+                              return pw.Container(
+                                padding: const pw.EdgeInsets.all(4),
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border(
+                                    bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+                                  ),
+                                ),
+                                child: pw.Text(
+                                  row[col],
+                                  style: pw.TextStyle(font: font),
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+        emit(generateAttendancePdfSuccessState());
+        await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+      });
+    } else if (attendanceType == hymns_attendance) {
+      await getAttendanceByMonth(month, 'Hymns').then((value) async {
+        emit(generateAttendancePdfLoadingState());
+        final pdf = pw.Document();
+        // Load an Arabic font (Cairo is included in your assets)
+        final font = pw.Font.ttf(await rootBundle.load('assets/fonts/cairo/Cairo-Regular.ttf'));
+        final List<ChildrenModel> data = [];
+        if (attendanceType == friday_attendance) {
+          data.addAll(selectedChildren);
+        } else if (attendanceType == hymns_attendance) {
+          data.addAll(Children.where((child) => child.isSelected == true).toList());
+        }
+        if (data.isEmpty) {
+          emit(generateAttendancePdfErrorState('لا يوجد بيانات للحضور'));
+          return;
+        }
+        pdf.addPage(
+          pw.Page(
+            textDirection: pw.TextDirection.rtl,
+            pageFormat: PdfPageFormat.a4,
+            build: (pw.Context context) => pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('تقرير  الحضور: $attendanceType', style: pw.TextStyle(font: font, fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 20.0),
+                pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    // For horizontal table, each column is a vertical list
+                    for (int col = 0; col < 3; col++)
+                      pw.Expanded(
+                        child: pw.Column(
+                          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+                          children: [
+                            // Header
+                            pw.Container(
+                              color: PdfColors.grey300,
+                              padding: const pw.EdgeInsets.all(4),
+                              child: pw.Text(
+                                ['الاسم', 'الأسرة', 'حضر'][col],
+                                style: pw.TextStyle(font: font, fontWeight: pw.FontWeight.bold),
+                                textAlign: pw.TextAlign.center,
+                              ),
+                            ),
+                            pw.SizedBox(height: 2),
+                            // Data
+                            ...data.map((child) {
+                              final row = [
+                                child.name ?? '',
+                                child.className ?? '',
+                                selectedChildren.any((selectedChild) => selectedChild.name == child.name) ? 'نعم' : 'لا',
+                              ];
+                              return pw.Container(
+                                padding: const pw.EdgeInsets.all(4),
+                                decoration: pw.BoxDecoration(
+                                  border: pw.Border(
+                                    bottom: pw.BorderSide(color: PdfColors.grey300, width: 0.5),
+                                  ),
+                                ),
+                                child: pw.Text(
+                                  row[col],
+                                  style: pw.TextStyle(font: font),
+                                  textAlign: pw.TextAlign.center,
+                                ),
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+        emit(generateAttendancePdfSuccessState());
+        await Printing.layoutPdf(onLayout: (format) async => pdf.save());
+      });
+    }
+  }
+
+  Future<List<ChildrenModel>> uploadAndParseChildrenCsv({bool saveToDatabase = false}) async {
+    emit(readCsvFileLoadingState());
+    try {
+      // Pick CSV file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['csv']);
+      if (result == null || result.files.single.path == null) {
+        emit(readCsvFileErrorState('لم يتم اختيار ملف'));
+        return [];
+      }
+      final file = File(result.files.single.path!);
+      final csvString = await file.readAsString();
+      final List<List<dynamic>> csvTable = CsvToListConverter(eol: '\n').convert(csvString);
+      // Assuming first row is header
+      final headers = csvTable.first.map((e) => e.toString()).toList();
+      final dataRows = csvTable.skip(1);
+      List<ChildrenModel> children = [];
+      for (var row in dataRows) {
+        if (row.every((cell) => cell == null || cell.toString().trim().isEmpty)) {
+          continue; // Skip empty or null rows
+        }
+        Map<String, dynamic> rowMap = {};
+        for (int i = 0; i < headers.length && i < row.length; i++) {
+          final header = headers[i].toString().trim();
+          rowMap[header] = row[i]?.toString()?.trim();
+        }
+        final child = ChildrenModel(
+          name: rowMap['name'],
+          birthDate: rowMap['birthDate'],
+          phone: rowMap['phone'],
+          AdditionalPhone: rowMap['AdditionalPhone'],
+          address: rowMap['address'],
+          className: rowMap['className'] ?? rowMap['ClassName'] ?? rowMap['class'] ?? rowMap['Class'],
+        );
+        children.add(child);
+        if (saveToDatabase) {
+          await FirebaseFirestore.instance.collection('children').add(child.toMap());
+        }
+      }
+      emit(uploadAndParseCsvSuccessState());
+      return children;
+    } catch (e) {
+      emit(uploadAndParseCsvErrorState('خطأ في قراءة الملف: ' + e.toString()));
+      return [];
+    }
+  }
+
+
+
 
 
 

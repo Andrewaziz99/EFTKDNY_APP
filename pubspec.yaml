@@ -75,6 +75,10 @@ dependencies:
   connectivity_plus: ^6.1.4
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  image: ^4.5.4
+  pdf: ^3.11.3
+  printing: ^5.14.2
+
 
 dev_dependencies:
   flutter_test:

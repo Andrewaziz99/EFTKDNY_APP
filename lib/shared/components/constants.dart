@@ -54,6 +54,7 @@ const String home = 'الرئيسية';
 const String attendance = 'الحضور';
 const String friday_attendance = ' حضور مدارس الأحد';
 const String hymns_attendance =  'حضور الاحان';
+const String bible_attendance =  'حضور درس الكتاب المقدس';
 const String settings = 'الاعدادات';
 const String profile = 'الملف الشخصي';
 const String about = 'حول';
@@ -152,6 +153,8 @@ const String startVisit = 'بدء الزيارة';
 const String headLine1 = 'بيانات الإفتقاد:';
 
 
+const String notification = 'الإشعارات';
+
 const String date = 'التاريخ';
 
 const String q1 = 'اخر مرة اتناولت فيها ؟';
@@ -179,3 +182,19 @@ Future<void> call(String phoneNumber) async {
     throw 'Could not launch phone call';
   }
 }
+
+//Map the months to their numbers
+Map<String, int> months = {
+  'يناير': 1,
+  'فبراير': 2,
+  'مارس': 3,
+  'أبريل': 4,
+  'مايو': 5,
+  'يونيو': 6,
+  'يوليو': 7,
+  'أغسطس': 8,
+  'سبتمبر': 9,
+  'أكتوبر': 10,
+  'نوفمبر': 11,
+  'ديسمبر': 12,
+};
