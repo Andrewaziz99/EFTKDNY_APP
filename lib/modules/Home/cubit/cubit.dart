@@ -513,7 +513,7 @@ class HomeCubit extends Cubit<HomeStates> {
       }
       final file = File(result.files.single.path!);
       final csvString = await file.readAsString();
-      final List<List<dynamic>> csvTable = CsvToListConverter(eol: '\n').convert(csvString);
+      final List<List<dynamic>> csvTable = CsvToListConverter(eol: '\n',shouldParseNumbers: false).convert(csvString);
       // Assuming first row is header
       final headers = csvTable.first.map((e) => e.toString()).toList();
       final dataRows = csvTable.skip(1);
@@ -525,7 +525,7 @@ class HomeCubit extends Cubit<HomeStates> {
         Map<String, dynamic> rowMap = {};
         for (int i = 0; i < headers.length && i < row.length; i++) {
           final header = headers[i].toString().trim();
-          rowMap[header] = row[i]?.toString()?.trim();
+          rowMap[header] = row[i]?.toString().trim();
         }
         final child = ChildrenModel(
           name: rowMap['name'],
@@ -543,7 +543,7 @@ class HomeCubit extends Cubit<HomeStates> {
       emit(uploadAndParseCsvSuccessState());
       return children;
     } catch (e) {
-      emit(uploadAndParseCsvErrorState('خطأ في قراءة الملف: ' + e.toString()));
+      emit(uploadAndParseCsvErrorState('خطأ في قراءة الملف: $e'));
       return [];
     }
   }
