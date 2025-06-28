@@ -34,7 +34,7 @@ class UserModel{
       'isAdmin': isAdmin,
     };
   }
-copyWith
+
   UserModel copyWith({
     String? uId,
     String? image,
