@@ -115,3 +115,13 @@ class readCsvFileErrorState extends HomeStates {
 
   readCsvFileErrorState(this.error);
 }
+
+class updateEmailVerificationStatusLoadingState extends HomeStates {}
+
+class updateEmailVerificationStatusSuccessState extends HomeStates {}
+
+class updateEmailVerificationStatusErrorState extends HomeStates {
+  final String error;
+
+  updateEmailVerificationStatusErrorState(this.error);
+}
