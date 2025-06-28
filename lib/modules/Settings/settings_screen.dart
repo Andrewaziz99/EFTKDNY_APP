@@ -4,6 +4,7 @@ import 'package:eftkdny/modules/Home/cubit/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../../shared/components/components.dart';
 import '../../shared/components/constants.dart';
 
@@ -77,19 +78,21 @@ class SettingsScreen extends StatelessWidget {
                             context: context,
                             builder: (context) => AlertDialog(
                               title: const Text('حول التطبيق'),
-                              content: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text(aboutApp),
-                                  const SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  const Text('نسخة التطبيق: $appVersion'),
-                                  const SizedBox(
-                                    height: 10.0,
-                                  ),
-                                  const Text(developer),
-                                ],
+                              content: FutureBuilder<String>(
+                                future: getAppVersion(),
+                                builder: (context, snapshot) {
+                                  final versionText = snapshot.hasData ? 'نسخة التطبيق: ${snapshot.data}' : 'نسخة التطبيق: ...';
+                                  return Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(aboutApp),
+                                      const SizedBox(height: 10.0),
+                                      Text(versionText),
+                                      const SizedBox(height: 10.0),
+                                      const Text(developer),
+                                    ],
+                                  );
+                                },
                               ),
                               actions: [
                                 TextButton(
@@ -171,4 +174,13 @@ Widget contactUs_Dialog(BuildContext context) {
           child: const Text('حسنا'))
     ],
   );
+}
+
+Future<String> getAppVersion() async {
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    return packageInfo.version;
+  } catch (e) {
+    return 'غير متوفر';
+  }
 }

@@ -33,8 +33,8 @@ final List<String> classItems = [
   'اسرة الانبا كاراس',
   'اسرة الانبا بولا',
 ];
+// The app version can be set dynamically or fetched from a config file
 
-const String appVersion = '1.0.0';
 
 const String appName = 'إفتقدني';
 
