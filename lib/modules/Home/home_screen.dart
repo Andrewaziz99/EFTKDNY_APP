@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:toastification/toastification.dart';
+import '../../main.dart';
 import '../Questions/question_screen.dart';
 import 'child_dialog_page.dart';
 import 'cubit/cubit.dart';
@@ -27,12 +28,13 @@ class HomeScreen extends StatelessWidget {
 
   /// Stream that emits the current email verification status and updates every 2 seconds
   Stream<bool> get emailVerifiedStream async* {
-    while (true) {
+    while (!user!.emailVerified) {
       await Future.delayed(Duration(seconds: 2));
       await user?.reload();
       user = FirebaseAuth.instance.currentUser;
       yield user?.emailVerified ?? false;
     }
+    yield true; // Emit true when email is verified
   }
 
   @override
@@ -48,11 +50,6 @@ class HomeScreen extends StatelessWidget {
               childNameController.clear();
               cubit.childrenList!.clear();
               cubit.getUserData();
-              print(user!.emailVerified);
-              if (user!.emailVerified) {
-                cubit.updateEmailVerificationStatus(true);
-              } else {
-              }
             },
             child: Stack(
               fit: StackFit.expand,
@@ -64,6 +61,11 @@ class HomeScreen extends StatelessWidget {
                 StreamBuilder<bool>(
                     stream: emailVerifiedStream,
                     builder: (context, snapshot) {
+                      final cubit = HomeCubit.get(context);
+                      // Only update once when email is verified and not already set in Firestore
+                      if (snapshot.data == true && cubit.userModel != null && cubit.userModel!.isEmailVerified == false) {
+                        cubit.updateEmailVerificationStatus(true);
+                      }
                       return SingleChildScrollView(
                         physics: AlwaysScrollableScrollPhysics(),
                         child: Padding(
@@ -114,20 +116,21 @@ class HomeScreen extends StatelessWidget {
                                               color: Colors.black,
                                               fontSize: 18.0),
                                         ),
-                                        leading: CircleAvatar(
-                                          backgroundImage:
-                                              CachedNetworkImageProvider(
-                                                  childData!.image ?? ''),
-                                          radius: 30.0,
-                                          backgroundColor: Colors.white,
-                                          child: childData!.image != null
-                                              ? null
-                                              : Icon(
+                                        leading: (childData!.image != null && childData!.image!.isNotEmpty)
+                                            ? CircleAvatar(
+                                                backgroundImage: CachedNetworkImageProvider(childData!.image!),
+                                                radius: 30.0,
+                                                backgroundColor: Colors.white,
+                                              )
+                                            : CircleAvatar(
+                                                radius: 30.0,
+                                                backgroundColor: Colors.white,
+                                                child: Icon(
                                                   Icons.person,
                                                   size: 50.0,
                                                   color: Colors.blue,
                                                 ),
-                                        ),
+                                              ),
                                         subtitle: Text(
                                           childData!.birthDate ?? '',
                                           style: TextStyle(
