@@ -24,54 +24,82 @@ class AdminScreen extends StatelessWidget {
                 style: TextStyle(color: Colors.white),
               ),
             ),
-            body: Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.asset(
-                  'assets/images/pattern.png',
-                  fit: BoxFit.cover,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomDropDownMenu(
-                          controller: classController,
-                          screenWidth: MediaQuery.of(context).size.width,
-                          screenRatio: MediaQuery.of(context).devicePixelRatio,
-                          entries: [
-                            for (var cl in classItems)
-                              DropdownMenuEntry(value: cl, label: cl)
-                          ],
-                          onSelected: (value) {
-                            classController.text = value.toString();
-                            cubit.getServantsByClass(value);
-                          }),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: cubit.servants.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            bool isFirst = index == 0;
-                            bool isLast = index == 4;
-                            return TimelineTile(
-                              indicatorStyle: const IndicatorStyle(
-                                width: 20,
-                                color: Colors.blue,
-                              ),
-                              isFirst: isFirst,
-                              isLast: isLast,
-                              beforeLineStyle: LineStyle(color: Colors.green),
-                              afterLineStyle: LineStyle(color: Colors.blue),
-                              alignment: TimelineAlign.center,
-                              hasIndicator: true,
-                              startChild: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.2,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    InkWell(
+            body: RefreshIndicator(
+              onRefresh: () async {
+                cubit.getServants();
+                classController.clear();
+              },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(
+                    'assets/images/pattern.png',
+                    fit: BoxFit.cover,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomDropDownMenu(
+                            controller: classController,
+                            screenWidth: MediaQuery.of(context).size.width,
+                            screenRatio: MediaQuery.of(context).devicePixelRatio,
+                            entries: [
+                              for (var cl in classItems)
+                                DropdownMenuEntry(value: cl, label: cl)
+                            ],
+                            onSelected: (value) {
+                              classController.text = value.toString();
+                              cubit.getServantsByClass(value);
+                            }),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: cubit.servants.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              bool isFirst = index == 0;
+                              bool isLast = index == 4;
+                              return TimelineTile(
+                                indicatorStyle: const IndicatorStyle(
+                                  width: 20,
+                                  color: Colors.blue,
+                                ),
+                                isFirst: isFirst,
+                                isLast: isLast,
+                                beforeLineStyle: LineStyle(color: Colors.green),
+                                afterLineStyle: LineStyle(color: Colors.blue),
+                                alignment: TimelineAlign.center,
+                                hasIndicator: true,
+                                startChild: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.2,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      InkWell(
+                                          onTap: () {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) => changeClassNameDialog(
+                                                  context,
+                                                  cubit.servants[index].uId!,
+                                                  cubit.servants[index].className!,
+                                                  cubit
+                                              ),
+                                            );
+                                          },
+                                          child:
+                                              Text(cubit.servants[index].name!)),
+                                    ],
+                                  ),
+                                ),
+                                endChild: SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.2,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      InkWell(
                                         onTap: () {
                                           showDialog(
                                             context: context,
@@ -80,52 +108,30 @@ class AdminScreen extends StatelessWidget {
                                                 cubit.servants[index].uId!,
                                                 cubit.servants[index].className!,
                                                 cubit
-                                            ),
+                                              ),
                                           );
                                         },
-                                        child:
-                                            Text(cubit.servants[index].name!)),
-                                  ],
-                                ),
-                              ),
-                              endChild: SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.2,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        showDialog(
-                                          context: context,
-                                          builder: (BuildContext context) => changeClassNameDialog(
-                                              context,
-                                              cubit.servants[index].uId!,
-                                              cubit.servants[index].className!,
-                                              cubit
-                                            ),
-                                        );
-                                      },
-                                      child: CircleAvatar(
-                                        backgroundImage:
-                                            CachedNetworkImageProvider(
-                                                cubit.servants[index].image ??
-                                                    ''),
-                                        radius: 30.0,
-                                        backgroundColor: Colors.white,
+                                        child: CircleAvatar(
+                                          backgroundImage:
+                                              CachedNetworkImageProvider(
+                                                  cubit.servants[index].image ??
+                                                      ''),
+                                          radius: 30.0,
+                                          backgroundColor: Colors.white,
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           );
         },
