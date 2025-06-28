@@ -112,12 +112,19 @@ class AdminScreen extends StatelessWidget {
                                           );
                                         },
                                         child: CircleAvatar(
-                                          backgroundImage:
-                                              CachedNetworkImageProvider(
-                                                  cubit.servants[index].image ??
-                                                      ''),
-                                          radius: 30.0,
                                           backgroundColor: Colors.white,
+                                          radius: 30.0,
+                                          child: (cubit.servants[index].image != null && cubit.servants[index].image!.isNotEmpty)
+                                              ? CircleAvatar(
+                                                  backgroundImage: CachedNetworkImageProvider(cubit.servants[index].image!),
+                                                  radius: 28.0,
+                                                  backgroundColor: Colors.white,
+                                                )
+                                              : Icon(
+                                                  Icons.person,
+                                                  size: 30.0,
+                                                  color: Colors.blue,
+                                                ),
                                         ),
                                       ),
                                     ],

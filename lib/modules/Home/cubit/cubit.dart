@@ -63,7 +63,7 @@ class HomeCubit extends Cubit<HomeStates> {
 
   void updateEmailVerificationStatus(bool isVerified) {
     emit(updateEmailVerificationStatusLoadingState());
-    if (userModel != null) {
+    if (userModel != null && userModel!.isEmailVerified != isVerified) {
       userModel!.isEmailVerified = isVerified;
       FirebaseFirestore.instance.collection('users').doc(uId).update({
         'isEmailVerified': isVerified,
