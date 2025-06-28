@@ -58,7 +58,7 @@ class AdminScreen extends StatelessWidget {
                             itemCount: cubit.servants.length,
                             itemBuilder: (BuildContext context, int index) {
                               bool isFirst = index == 0;
-                              bool isLast = index == 4;
+                              bool isLast = index == cubit.servants.length;
                               return TimelineTile(
                                 indicatorStyle: const IndicatorStyle(
                                   width: 20,
