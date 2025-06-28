@@ -61,6 +61,20 @@ class HomeCubit extends Cubit<HomeStates> {
     });
   }
 
+  void updateEmailVerificationStatus(bool isVerified) {
+    emit(updateEmailVerificationStatusLoadingState());
+    if (userModel != null) {
+      userModel!.isEmailVerified = isVerified;
+      FirebaseFirestore.instance.collection('users').doc(uId).update({
+        'isEmailVerified': isVerified,
+      }).then((value) {
+        emit(updateEmailVerificationStatusSuccessState());
+      }).catchError((error) {
+        emit(updateEmailVerificationStatusErrorState(error.toString()));
+      });
+    }
+  }
+
   ChildrenModel? childrenModel;
 
   List<ChildrenModel>? childrenList = [];
